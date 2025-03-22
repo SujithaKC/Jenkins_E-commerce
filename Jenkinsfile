@@ -77,7 +77,7 @@ pipeline {
             parallel {
                 stage('Run Backend Container') {
                     steps {
-                        sh 'docker run -d -p 5050:5050 --name $BACKEND_CONTAINER $BACKEND_IMAGE'
+                        sh 'docker run -d -p 5000:5000 --name $BACKEND_CONTAINER $BACKEND_IMAGE'
                     }
                 }
 
