@@ -3,14 +3,14 @@ pipeline {
     environment {
         DOCKER_IMAGE = "sujisuki/docker-app:latest"  // Change this to your registry
         CONTAINER_NAME = "docker-running-app"
-        REGISTRY_CREDENTIALS = "docker-hub-credentials"  // Jenkins credentials ID
+        REGISTRY_CREDENTIALS = "docker_suji"  // Jenkins credentials ID
     }
 
     stages {
         stage('Checkout Code') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github_suji', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-                    git url: "https://$GIT_USER:$GIT_TOKEN@github.com/SujithaKC/jenkins-docker-demo.git", branch: 'main'
+                    git url: "https://$GIT_USER:$GIT_TOKEN@github.com/SujithaKC/Jenkins_E-commerce.git", branch: 'main'
                 }
             }
         }
