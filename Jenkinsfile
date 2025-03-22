@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "sujisuki/backend-app:latest"    // Change this to your Docker Hub repo
-        FRONTEND_IMAGE = "sujisuki/frontend-app:latest"  // Change this to your Docker Hub repo
+        BACKEND_IMAGE = "sujisuki/backend-app:latest"
+        FRONTEND_IMAGE = "sujisuki/frontend-app:latest"
         BACKEND_CONTAINER = "backend-running-app"
         FRONTEND_CONTAINER = "frontend-running-app"
-        REGISTRY_CREDENTIALS = "docker_suji"  // Jenkins credentials ID for Docker Hub
+        REGISTRY_CREDENTIALS = "docker_suji"
     }
 
     stages {
@@ -18,18 +18,22 @@ pipeline {
             }
         }
 
-        stage('Build Backend Docker Image') {
-            steps {
-                dir('backend') {
-                    sh 'docker build -t $BACKEND_IMAGE .'
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build Backend Image') {
+                    steps {
+                        dir('backend') {
+                            sh 'docker build -t $BACKEND_IMAGE .'
+                        }
+                    }
                 }
-            }
-        }
 
-        stage('Build Frontend Docker Image') {
-            steps {
-                dir('frontend') {
-                    sh 'docker build -t $FRONTEND_IMAGE .'
+                stage('Build Frontend Image') {
+                    steps {
+                        dir('frontend') {
+                            sh 'docker build -t $FRONTEND_IMAGE .'
+                        }
+                    }
                 }
             }
         }
@@ -43,18 +47,16 @@ pipeline {
         }
 
         stage('Push Images to Docker Hub') {
-            steps {
-                parallel {
-                    stage('Push Backend Image') {
-                        steps {
-                            sh 'docker push $BACKEND_IMAGE'
-                        }
+            parallel {
+                stage('Push Backend Image') {
+                    steps {
+                        sh 'docker push $BACKEND_IMAGE'
                     }
+                }
 
-                    stage('Push Frontend Image') {
-                        steps {
-                            sh 'docker push $FRONTEND_IMAGE'
-                        }
+                stage('Push Frontend Image') {
+                    steps {
+                        sh 'docker push $FRONTEND_IMAGE'
                     }
                 }
             }
@@ -71,15 +73,19 @@ pipeline {
             }
         }
 
-        stage('Run Backend Container') {
-            steps {
-                sh 'docker run -d -p 5000:5000 --name $BACKEND_CONTAINER $BACKEND_IMAGE'
-            }
-        }
+        stage('Run Containers') {
+            parallel {
+                stage('Run Backend Container') {
+                    steps {
+                        sh 'docker run -d -p 5050:5050 --name $BACKEND_CONTAINER $BACKEND_IMAGE'
+                    }
+                }
 
-        stage('Run Frontend Container') {
-            steps {
-                sh 'docker run -d -p 3000:3000 --name $FRONTEND_CONTAINER $FRONTEND_IMAGE'
+                stage('Run Frontend Container') {
+                    steps {
+                        sh 'docker run -d -p 3000:3000 --name $FRONTEND_CONTAINER $FRONTEND_IMAGE'
+                    }
+                }
             }
         }
     }
@@ -93,3 +99,4 @@ pipeline {
         }
     }
 }
+
